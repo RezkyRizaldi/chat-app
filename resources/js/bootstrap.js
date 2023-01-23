@@ -36,4 +36,21 @@ window.Echo = new Echo({
 	forceTLS: true,
 	enabledTransports: ["ws", "wss"],
 	encrypted: true,
+	authorizer: (channel) => {
+		return {
+			authorize: (socketId, callback) => {
+				axios
+					.post("/broadcasting/auth", {
+						socket_id: socketId,
+						channel_name: channel.name,
+					})
+					.then((response) => {
+						callback(false, response.data);
+					})
+					.catch((error) => {
+						callback(true, error);
+					});
+			},
+		};
+	},
 });

@@ -1,17 +1,14 @@
 <script setup>
 import { ChatBubbleLeftRightIcon } from "@heroicons/vue/24/outline";
-import { Head, useForm, usePage } from "@inertiajs/vue3";
-import moment from "moment";
-import { computed, onMounted, onUpdated, ref } from "vue";
+import { Head, useForm } from "@inertiajs/vue3";
+import { onMounted, ref } from "vue";
+import GroupChatBubble from "@/Components/Chat/Group/Bubble.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import TextInput from "@/Components/TextInput.vue";
 import { PaperAirplaneIcon } from "@heroicons/vue/24/solid";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 
 const messages = ref([]);
-const bubble = ref(null);
-
-const user = computed(() => usePage().props.auth.user);
 
 const form = useForm({ message: "" });
 
@@ -31,14 +28,9 @@ const sendMessage = () => {
 	});
 };
 
-onUpdated(() => {
-	bubble.value.scrollTop = bubble.value.lastElementChild.offsetTop;
-});
-
 onMounted(() => {
 	Echo.channel("group-chat").listen("GroupChatEvent", ({ groupMessage }) => {
-		console.log("Listen");
-		messages.value.push({ message: groupMessage.message });
+		messages.value.push(groupMessage);
 	});
 	fetchMessages();
 });
@@ -66,42 +58,7 @@ onMounted(() => {
 									>Mulai mengobrol dengan orang-orang.</span
 								>
 							</div>
-							<div
-								class="flex w-full flex-1 flex-col gap-y-4 overflow-y-scroll py-3 pr-6 scrollbar-thin scrollbar-track-gray-400 scrollbar-thumb-black scrollbar-track-rounded-full scrollbar-thumb-rounded-full"
-								ref="bubble"
-								v-else
-							>
-								<div v-for="message in messages" :key="message.id">
-									<div class="flex flex-col gap-y-1.5">
-										<span
-											:class="`text-sm${
-												user.id === message.user.id ? ' self-end' : ''
-											}`"
-											>{{ message.user.name }}</span
-										>
-										<div
-											:class="`flex items-end gap-x-2.5${
-												user.id === message.user.id
-													? ' flex-row-reverse self-end'
-													: ''
-											}`"
-										>
-											<div
-												:class="`w-fit space-x-2 rounded-xl p-4 ${
-													user.id === message.user.id
-														? 'bg-blue-400'
-														: 'bg-gray-400'
-												}`"
-											>
-												<span class="text-white">{{ message.message }}</span>
-											</div>
-											<span class="text-xs">{{
-												moment(message.created_at).format("HH:mm")
-											}}</span>
-										</div>
-									</div>
-								</div>
-							</div>
+							<GroupChatBubble :messages="messages" v-else />
 							<div class="w-full">
 								<form
 									class="flex items-center gap-x-4"

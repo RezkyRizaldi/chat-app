@@ -16,7 +16,7 @@ class Conversation extends Model
      *
      * @var array<int, string>
      */
-    protected $fillable = ['sender_id', 'receiver_id'];
+    protected $fillable = ['sender_id', 'receiver_id', 'last_message'];
 
     /**
      * @var array<string, string>
@@ -28,7 +28,7 @@ class Conversation extends Model
 
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'sender_id');
     }
 
     public function messages(): HasMany

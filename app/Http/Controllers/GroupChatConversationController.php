@@ -25,6 +25,8 @@ class GroupChatConversationController extends Controller
             'message' => $request->input('message'),
         ]);
 
+        $groupMessage->load(['user']);
+
         GroupChatEvent::dispatch($groupMessage);
 
         return back();

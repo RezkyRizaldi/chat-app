@@ -20,6 +20,10 @@ class ConversationController extends Controller
             'message' => $request->input('message'),
         ]);
 
+        $conversation->update([
+            'last_message' => $request->input('message'),
+        ]);
+
         ChatEvent::dispatch($message);
 
         return back();

@@ -39,6 +39,20 @@ const fetchConversation = async (id) => {
 	loading.value = false;
 };
 
+const listenMessage = async (id) => {
+	if (conversation.value.id !== undefined) {
+		Echo.leave("chat." + conversation.value.id);
+	}
+
+	const { data } = await axios.get(
+		route("conversations.show", { receiverId: id })
+	);
+
+	Echo.private(`chat.${data.id}`).listen("ChatEvent", ({ message }) => {
+		conversation.value.messages.push({ message: message.message });
+	});
+};
+
 const sendMessage = () => {
 	form.post(
 		route("conversations.store", { conversation: conversation.value.id }),
@@ -46,6 +60,7 @@ const sendMessage = () => {
 			onSuccess: () => {
 				form.reset();
 				fetchConversation(currentUser.value.id);
+				fetchUsers();
 			},
 			preserveScroll: true,
 		}
@@ -53,12 +68,6 @@ const sendMessage = () => {
 };
 
 onMounted(() => {
-	Echo.private(`chat.${conversation.value.id ?? 1}`).listen(
-		"ChatEvent",
-		({ message }) => {
-			conversation.value.messages.push({ message: message.message });
-		}
-	);
 	fetchUsers();
 });
 </script>
@@ -79,6 +88,7 @@ onMounted(() => {
 								:currentUser="currentUser"
 								@fetchCurrentUser="fetchCurrentUser"
 								@fetchConversation="fetchConversation"
+								@listenMessage="listenMessage"
 							/>
 							<div
 								class="flex flex-col items-center justify-center gap-y-2.5 py-3"

@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Broadcast;
 Broadcast::channel('chat.{conversationId}', function (User $user, int $conversationId) {
     return Auth::check();
 });
+
 Broadcast::channel('group-chat', function () {
     return Auth::check();
 });

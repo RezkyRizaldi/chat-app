@@ -6,11 +6,16 @@ const { currentUser, users } = defineProps({
 	users: Array,
 });
 
-const emits = defineEmits(["fetchConversation", "fetchCurrentUser"]);
+const emits = defineEmits([
+	"fetchConversation",
+	"fetchCurrentUser",
+	"listenMessage",
+]);
 
 const loadMessages = async (id) => {
-	emits("fetchConversation", id);
 	emits("fetchCurrentUser", id);
+	emits("fetchConversation", id);
+	emits("listenMessage", id);
 };
 </script>
 
@@ -20,15 +25,15 @@ const loadMessages = async (id) => {
 	>
 		<button
 			:class="`flex w-full gap-x-4 p-3 text-start hover:bg-gray-300/50${
-				currentUser.id === user.id ? ' bg-gray-300/50' : ''
+				currentUser.id === user.user.id ? ' bg-gray-300/50' : ''
 			}`"
 			v-for="user in users"
-			:key="user.id"
-			@click="loadMessages(user.id)"
+			:key="user.user.id"
+			@click="loadMessages(user.user.id)"
 		>
 			<img
 				class="h-10 w-10 rounded-full"
-				:src="`https://via.placeholder.com/200x200?text=${user.name
+				:src="`https://via.placeholder.com/200x200?text=${user.user.name
 					.split(' ')
 					.map((n) => n.charAt(0).toUpperCase())
 					.join('')}`"
@@ -37,13 +42,13 @@ const loadMessages = async (id) => {
 			<div class="flex-1">
 				<div class="flex justify-between">
 					<div>
-						<span class="block sm:text-lg">{{ user.name }}</span>
+						<span class="block sm:text-lg">{{ user.user.name }}</span>
 						<span class="block text-xs text-gray-400 sm:text-sm">{{
-							user.messages[0]?.message
+							user.last_message
 						}}</span>
 					</div>
 					<div class="mt-1.5 text-xs">
-						{{ moment(user.messages[0]?.created_at).format("HH:mm") }}
+						{{ moment(user.updated_at).format("HH:mm") }}
 					</div>
 				</div>
 			</div>
